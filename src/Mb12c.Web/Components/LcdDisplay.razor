@@ -1,0 +1,24 @@
+@* The recessed LCD: eleven digit cells and the annunciator row. *@
+<div class="lcd @(State.IsOff ? "lcd-off" : "")">
+    <div class="lcd-digits">
+        @foreach (var cell in State.Cells)
+        {
+            <SevenSegDigit Cell="cell" />
+        }
+    </div>
+    <div class="lcd-annunciators">
+        <span class="@Ann(Annunciators.F)">f</span>
+        <span class="@Ann(Annunciators.G)">g</span>
+        <span class="@Ann(Annunciators.Begin)">BEGIN</span>
+        <span class="@Ann(Annunciators.Dmy)">D.MY</span>
+        <span class="@Ann(Annunciators.C)">C</span>
+        <span class="@Ann(Annunciators.Prgm)">PRGM</span>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public DisplayState State { get; set; } = default!;
+
+    private string Ann(Annunciators flag) =>
+        !State.IsOff && State.Annunciators.HasFlag(flag) ? "ann on" : "ann";
+}
