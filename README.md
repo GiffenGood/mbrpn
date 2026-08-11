@@ -1,16 +1,17 @@
-# MB-12c — an HP-12C in Blazor WebAssembly
+# MB-RPN — an HP-12C-compatible RPN calculator in Blazor WebAssembly
 
-A faithful recreation of the HP-12C financial calculator as a .NET Blazor WebAssembly app.
-Looks like the real thing (except the logo says **MB-12c**) and implements the functions
-the way the HP-12C Owner's Handbook describes them: RPN stack discipline, 10-significant-digit
-arithmetic, the financial solvers, dates, statistics, and full keystroke programming.
+**MB-RPN** is a .NET Blazor WebAssembly financial calculator with its own dark, glowing
+visual identity and an interactive history panel — functionally compatible with the
+HP-12C: it implements the functions the way the HP-12C Owner's Handbook describes them
+(RPN stack discipline, 10-significant-digit arithmetic, the financial solvers, dates,
+statistics, and full keystroke programming) on the same keyboard layout.
 
 ## Running
 
 ```
-dotnet run --project src\Mb12c.Web        # dev server
+dotnet run --project src\MBRPN.Web        # dev server
 dotnet test                                # engine test suite (handbook examples)
-dotnet publish src\Mb12c.Web -c Release    # static site in bin\Release\net10.0\publish\wwwroot
+dotnet publish src\MBRPN.Web -c Release    # static site in bin\Release\net10.0\publish\wwwroot
 ```
 
 Requires the .NET 10 SDK.
@@ -19,9 +20,9 @@ Requires the .NET 10 SDK.
 
 | Project | What it is |
 |---|---|
-| `src\Mb12c.Engine` | UI-independent calculator engine. `CalculatorEngine.Press(KeyId)` in, `DisplayState` out. |
-| `src\Mb12c.Web` | Blazor WASM front end: CSS faceplate, SVG seven-segment LCD, keyboard mapping, localStorage continuous memory. |
-| `tests\Mb12c.Engine.Tests` | xUnit suite (109 tests) driving the engine key-by-key and asserting on display text, using the handbook's worked examples. |
+| `src\MBRPN.Engine` | UI-independent calculator engine. `CalculatorEngine.Press(KeyId)` in, `DisplayState` out; interaction history with structured replay. |
+| `src\MBRPN.Web` | Blazor WASM front end: dark-tech CSS faceplate, glowing SVG seven-segment display, history panel, keyboard mapping, localStorage continuous memory. |
+| `tests\MBRPN.Engine.Tests` | xUnit suite (144 tests) driving the engine key-by-key and asserting on display text, using the handbook's worked examples, plus history recording/replay and rename-verification tests. |
 
 ## What's implemented
 
@@ -47,6 +48,13 @@ Requires the .NET 10 SDK.
   g MEM (`P-08 r-20`), non-blocking run loop in the UI.
 - **Continuous memory** — full state persists to localStorage; ON toggles the display off
   without losing anything.
+- **Interactive history** — the panel beside the calculator records meaningful
+  operations (coalesced number entry + operation, e.g. `100 ENTER`, `25 +` with its
+  result). Every entry is stored structurally as its logical key sequence; clicking one
+  replays exactly that operation against the calculator's **current** state (no snapshot
+  restore) and records itself as a new entry. Clear button empties it; history is
+  session-only. On narrow screens it moves below the calculator; in mobile-landscape
+  full-screen mode it is hidden.
 
 ## Keyboard shortcuts
 
@@ -61,5 +69,9 @@ digits `0–9` `.` `Enter` `+ − × ÷` `%` — as printed. `f` `g` prefixes; `
   like the hardware. Transcendentals compute in double precision and round back to 10 digits.
 - Iterative solvers (i, IRR, YTM) bracket and bisect exactly the classes of roots the
   handbook documents, and report the handbook's error numbers when no single answer exists.
-- The 7-segment LCD, gold/blue shifted legends, CLEAR bracket, and tall ENTER key are
-  drawn entirely with CSS/SVG — no images.
+- The 7-segment display, teal/violet shifted legends, CLEAR rule, and tall ENTER key are
+  drawn entirely with CSS/SVG — no images. The layout matches the HP-12C keyboard; the
+  visual identity (graphite case, glowing segments) is MB-RPN's own.
+- On touch devices the keyboard-shortcut hints are hidden and the calculator scales to
+  the viewport; in landscape it fills the screen edge-to-edge like a real calculator
+  (`mbrpn.fit()` in `wwwroot/js/interop.js`; append `?mobile=1` to preview on desktop).

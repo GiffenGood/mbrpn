@@ -1,0 +1,52 @@
+@using MBRPN.Engine.History
+@implements IDisposable
+
+@* Interaction history: newest first, each row replays its recorded operation against
+   the calculator's current state. *@
+<aside class="history-panel">
+    <div class="history-header">
+        <span class="history-title">History</span>
+        <button type="button" class="history-clear" title="Clear history"
+                @onclick="() => Engine.History.Clear()">Clear</button>
+    </div>
+    <div class="history-list">
+        @if (Engine.History.Entries.Count == 0)
+        {
+            <div class="history-empty">No operations yet</div>
+        }
+        @foreach (var entry in Engine.History.Entries.Reverse())
+        {
+            <button type="button" class="history-row" @key="entry.Sequence"
+                    disabled="@RowsDisabled"
+                    title="Replay against the current state"
+                    @onclick="() => OnReplay.InvokeAsync(entry)">
+                <span class="history-label">@entry.Label</span>
+                @if (entry.ResultText is { } result)
+                {
+                    <span class="history-result">@result</span>
+                }
+            </button>
+        }
+    </div>
+</aside>
+
+@code {
+    [Parameter, EditorRequired] public CalculatorEngine Engine { get; set; } = default!;
+    [Parameter] public EventCallback<HistoryEntry> OnReplay { get; set; }
+
+    private bool RowsDisabled => Engine.ProgramMode || Engine.IsRunning || Engine.IsOff;
+
+    protected override void OnInitialized()
+    {
+        Engine.History.Changed += OnChanged;
+        Engine.Changed += OnChanged;    // mode changes toggle the disabled state
+    }
+
+    private void OnChanged() => StateHasChanged();
+
+    public void Dispose()
+    {
+        Engine.History.Changed -= OnChanged;
+        Engine.Changed -= OnChanged;
+    }
+}

@@ -1,0 +1,37 @@
+@* The MB-RPN faceplate: header band with the wordmark and display, then the 4×10 key
+   grid rendered straight from KeyboardMap (ENTER spans rows 3–4). *@
+<div class="calc-scale-box">
+<div class="calc-body">
+    <div class="calc-face">
+        <div class="header-band">
+            <div class="wordmark">
+                <span class="wm-mb">MB</span><span class="wm-dash">–</span><span class="wm-rpn">RPN</span>
+                <span class="wm-sub">FINANCIAL RPN</span>
+            </div>
+            <LcdDisplay State="DisplayState" />
+        </div>
+
+        <div class="key-grid">
+            @foreach (var def in OrderedKeys)
+            {
+                <CalcKey Def="def" OnPress="OnPress" />
+            }
+            <div class="clear-bracket"><span>CLEAR</span></div>
+        </div>
+
+        <div class="face-footer">
+            <span class="footer-line"></span>
+            <span class="footer-text">M&nbsp;&nbsp;B&nbsp;E&nbsp;C&nbsp;K&nbsp;I&nbsp;U&nbsp;S</span>
+            <span class="footer-line"></span>
+        </div>
+    </div>
+</div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public DisplayState DisplayState { get; set; } = default!;
+    [Parameter] public EventCallback<KeyId> OnPress { get; set; }
+
+    private static readonly IReadOnlyList<KeyDef> OrderedKeys =
+        KeyboardMap.Keys.OrderBy(k => k.Row).ThenBy(k => k.Col).ToList();
+}

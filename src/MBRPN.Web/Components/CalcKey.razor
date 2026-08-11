@@ -1,0 +1,35 @@
+@* One key: teal f-legend on the faceplate above; flat key with the primary label and a
+   violet g-legend caption inside. *@
+<div class="key-cell @ExtraClass" style="@CellStyle">
+    <div class="f-label">@(Def.FLabel ?? " ")</div>
+    <button type="button" class="key @KeyClass" @onclick="() => OnPress.InvokeAsync(Def.Id)">
+        @if (Def.Id == KeyId.Enter)
+        {
+            <span class="key-primary enter-label">E<br />N<br />T<br />E<br />R</span>
+        }
+        else
+        {
+            <span class="key-primary">@Def.PrimaryLabel</span>
+        }
+        <span class="g-label">@(Def.GLabel ?? " ")</span>
+    </button>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public KeyDef Def { get; set; } = default!;
+    [Parameter] public EventCallback<KeyId> OnPress { get; set; }
+
+    private string ExtraClass => Def.Id == KeyId.Enter ? "cell-enter" : "";
+
+    private string CellStyle => Def.Id == KeyId.Enter
+        ? $"grid-column:{Def.Col};grid-row:3 / span 2;"
+        : $"grid-column:{Def.Col};grid-row:{Def.Row};";
+
+    private string KeyClass => Def.Id switch
+    {
+        KeyId.F => "key-f",
+        KeyId.G => "key-g",
+        KeyId.Enter => "key-enter",
+        _ => "",
+    };
+}

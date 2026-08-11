@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MBRPN.Engine/MBRPN.Engine.csproj" />
+    <Project Path="src/MBRPN.Web/MBRPN.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MBRPN.Engine.Tests/MBRPN.Engine.Tests.csproj" />
+  </Folder>
+</Solution>
