@@ -120,33 +120,32 @@ html, body {
 .wordmark {
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
-    min-width: 150px;
+    min-width: 170px;
     border-right: 1px solid rgba(255, 255, 255, 0.07);
     padding-right: 18px;
 }
 
+.wm-title { line-height: 1.1; }
+
 .wm-mb, .wm-dash, .wm-rpn {
-    display: inline;
     font-size: 1.7rem;
     font-weight: 800;
     letter-spacing: 0.04em;
-    line-height: 1.1;
 }
 
 .wm-mb { color: #eef2f6; }
 .wm-dash { color: #566068; font-weight: 400; }
 .wm-rpn { color: var(--teal); }
 
-.wordmark { flex-direction: row; align-items: baseline; flex-wrap: wrap; align-content: center; }
-
 .wm-sub {
-    flex-basis: 100%;
     color: #566068;
-    font-size: 0.58rem;
-    font-weight: 700;
-    letter-spacing: 0.42em;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
     margin-top: 4px;
+    text-align: center;
 }
 
 /* ---- Display (glowing segments on near-black) ---- */
