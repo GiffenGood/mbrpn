@@ -14,6 +14,9 @@ dotnet test tests\MBRPN.Engine.Tests --nologo -v q
 if ($LASTEXITCODE -ne 0) { throw 'Tests failed - deploy aborted.' }
 
 Write-Host '=== Publishing Release build ===' -ForegroundColor Cyan
+# dotnet publish does not clean its output; stale files would ride along to gh-pages.
+$publishParent = Split-Path $publishRoot -Parent
+if (Test-Path $publishParent) { Remove-Item $publishParent -Recurse -Force }
 dotnet publish src\MBRPN.Web -c Release --nologo -v q
 if ($LASTEXITCODE -ne 0) { throw 'Publish failed - deploy aborted.' }
 if (-not (Test-Path (Join-Path $publishRoot 'index.html'))) { throw "Publish output not found at $publishRoot" }

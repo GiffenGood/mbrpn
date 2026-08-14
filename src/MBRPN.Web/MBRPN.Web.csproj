@@ -5,6 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <!-- All number/date formatting goes through InvariantCulture in the engine, so the
+         2.5 MB of ICU locale data is dead weight in the download. -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- GitHub Pages gzips on the fly and never serves precompressed neighbors, so
+         publishing .br/.gz files only bloats the gh-pages branch. -->
+    <CompressionEnabled>false</CompressionEnabled>
   </PropertyGroup>
 
   <ItemGroup>
