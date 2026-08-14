@@ -10,7 +10,7 @@ $repoName = 'mbrpn'   # the site is served at https://<user>.github.io/mbrpn/
 $publishRoot = Join-Path $PSScriptRoot 'src\MBRPN.Web\bin\Release\net10.0\publish\wwwroot'
 
 Write-Host '=== Running tests ===' -ForegroundColor Cyan
-dotnet test --nologo -v q
+dotnet test tests\MBRPN.Engine.Tests --nologo -v q
 if ($LASTEXITCODE -ne 0) { throw 'Tests failed - deploy aborted.' }
 
 Write-Host '=== Publishing Release build ===' -ForegroundColor Cyan
@@ -43,8 +43,11 @@ Push-Location $publishRoot
 try {
     if (Test-Path '.git') { Remove-Item '.git' -Recurse -Force }
     git init -b gh-pages -q
-    git add -A
-    git -c user.name='MB-RPN deploy' -c user.email='deploy@mbrpn.local' commit -q -m 'Deploy MB-RPN to GitHub Pages'
+    # Blazor's boot manifest pins SHA-256 integrity hashes of every published file, so
+    # the deployed bytes must match exactly: no line-ending normalization, ever.
+    Set-Content -Path '.gitattributes' -Value '* -text' -NoNewline
+    git -c core.autocrlf=false add -A
+    git -c core.autocrlf=false -c user.name='MB-RPN deploy' -c user.email='deploy@mbrpn.local' commit -q -m 'Deploy MB-RPN to GitHub Pages'
     if ($LASTEXITCODE -ne 0) { throw 'Commit of publish output failed.' }
     git push --force $remote gh-pages
     if ($LASTEXITCODE -ne 0) { throw 'Push to gh-pages failed.' }
