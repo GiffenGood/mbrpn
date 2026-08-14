@@ -10,7 +10,7 @@ using MBRPN.Engine.Statistics;
 namespace MBRPN.Engine;
 
 /// <summary>
-/// The MB-RPN: a faithful HP-12C. Feed it physical key presses with <see cref="Press"/>,
+/// The MB-RPN engine, compatible with the HP-12C. Feed it physical key presses with <see cref="Press"/>,
 /// read the LCD from <see cref="Display"/>. Program execution is driven externally via
 /// <see cref="StepProgram"/> so a UI can keep itself responsive (and honor PSE pauses).
 /// </summary>

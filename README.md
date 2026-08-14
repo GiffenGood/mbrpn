@@ -1,10 +1,11 @@
-# MB-RPN — an HP-12C-compatible RPN calculator in Blazor WebAssembly
+# MB-RPN — an RPN financial calculator in Blazor WebAssembly
 
 **MB-RPN** is a .NET Blazor WebAssembly financial calculator with its own dark, glowing
-visual identity and an interactive history panel — functionally compatible with the
-HP-12C: it implements the functions the way the HP-12C Owner's Handbook describes them
-(RPN stack discipline, 10-significant-digit arithmetic, the financial solvers, dates,
-statistics, and full keystroke programming) on the same keyboard layout.
+visual identity and an interactive history panel. It is an independent implementation
+that is functionally compatible with the HP-12C: RPN stack discipline,
+10-significant-digit arithmetic, the financial solvers, dates, statistics, and full
+keystroke programming on the same keyboard layout, matching the documented behavior of
+that calculator.
 
 ## Running
 
@@ -92,3 +93,13 @@ digits `0–9` `.` `Enter` `+ − × ÷` `%` — as printed. `f` `g` prefixes; `
 - On touch devices the keyboard-shortcut hints are hidden and the calculator scales to
   the viewport; in landscape it fills the screen edge-to-edge like a real calculator
   (`mbrpn.fit()` in `wwwroot/js/interop.js`; append `?mobile=1` to preview on desktop).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+## Trademark notice
+
+MB-RPN is an independent implementation and is not affiliated with, authorized by, or
+endorsed by HP Inc. HP and HP-12C are trademarks of HP Inc., used here only to describe
+compatibility.
