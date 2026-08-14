@@ -16,6 +16,23 @@ dotnet publish src\MBRPN.Web -c Release    # static site in bin\Release\net10.0\
 
 Requires the .NET 10 SDK.
 
+## Deploying to GitHub Pages
+
+One-time setup:
+
+1. `gh auth login` (GitHub CLI, interactive).
+2. `gh repo create mbrpn --public --source . --push` — creates the repo and pushes `main`.
+3. After the first deploy (step below), enable Pages once:
+   `gh api repos/{owner}/mbrpn/pages -X POST -f "source[branch]=gh-pages" -f "source[path]=/"`
+   (or Settings → Pages → Deploy from a branch → `gh-pages`).
+
+Every deploy after that: run **`deploy.cmd`** (double-click, or `.\deploy.ps1`). It runs
+the test suite, publishes a Release build, patches the output for Pages (base href
+`/mbrpn/`, `.nojekyll`, `404.html`), and force-pushes it to the `gh-pages` branch. The
+site is served at `https://<your-username>.github.io/mbrpn/` about a minute later.
+The repo must stay public for free Pages hosting; the deployed app's saved state lives
+under the `github.io` origin, separate from localhost.
+
 ## Projects
 
 | Project | What it is |
