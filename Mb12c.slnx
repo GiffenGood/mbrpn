@@ -1,9 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/Mb12c.Engine/Mb12c.Engine.csproj" />
-    <Project Path="src/Mb12c.Web/Mb12c.Web.csproj" />
-  </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/Mb12c.Engine.Tests/Mb12c.Engine.Tests.csproj" />
-  </Folder>
-</Solution>
