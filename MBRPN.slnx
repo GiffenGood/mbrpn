@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/MBRPN.Engine/MBRPN.Engine.csproj" />
+    <Project Path="src/MBRPN.Maui/MBRPN.Maui.csproj" />
     <Project Path="src/MBRPN.Web/MBRPN.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">

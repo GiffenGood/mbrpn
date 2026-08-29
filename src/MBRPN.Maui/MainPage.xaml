@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:theme="clr-namespace:MBRPN.Maui.Theme"
+             xmlns:hist="clr-namespace:MBRPN.Engine.History;assembly=MBRPN.Engine"
+             x:Class="MBRPN.Maui.MainPage"
+             BackgroundColor="{x:Static theme:Palette.BgDeep}">
+
+    <!-- Calculator fills the left column; the history panel docks into the Auto
+         column when toggled and the calculator rescales into what remains. -->
+    <Grid x:Name="RootGrid"
+          Padding="{OnPlatform Default=8, WinUI=24}"
+          ColumnDefinitions="*,Auto"
+          ColumnSpacing="14">
+
+            <!-- Scale box: reserves exactly the scaled footprint of the faceplate.
+                 AbsoluteLayout so the fixed 1010×650 design size is never clamped
+                 by the (smaller, scaled) footprint this box reports to the grid. -->
+            <AbsoluteLayout x:Name="ScaleBox"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+
+                <!-- Case -->
+                <Border x:Name="Faceplate"
+                        AbsoluteLayout.LayoutBounds="0,0,1010,650"
+                        AnchorX="0" AnchorY="0"
+                        StrokeThickness="1"
+                        Stroke="#10FFFFFF"
+                        Padding="10,8,10,8">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0.3,1">
+                            <GradientStop Color="{x:Static theme:Palette.CaseEdge}" Offset="0" />
+                            <GradientStop Color="{x:Static theme:Palette.Case}" Offset="0.55" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+
+                    <!-- Face -->
+                    <Border Background="{x:Static theme:Palette.Face}"
+                            StrokeThickness="1"
+                            Stroke="#0AFFFFFF"
+                            Padding="12,8,12,6">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+
+                        <Grid RowDefinitions="Auto,*,Auto">
+
+                            <!-- Header band: wordmark + LCD -->
+                            <Border Grid.Row="0"
+                                    Background="{x:Static theme:Palette.HeaderBand}"
+                                    StrokeThickness="1"
+                                    Stroke="#0DFFFFFF"
+                                    Padding="14,8"
+                                    Margin="0,0,0,10">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="10" />
+                                </Border.StrokeShape>
+                                <Grid ColumnDefinitions="170,1,*,Auto" ColumnSpacing="18">
+                                    <VerticalStackLayout Grid.Column="0"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="Center"
+                                                         Spacing="4">
+                                        <HorizontalStackLayout HorizontalOptions="Center">
+                                            <Label Text="MB"
+                                                   TextColor="{x:Static theme:Palette.WordmarkMb}"
+                                                   FontSize="27" FontAttributes="Bold"
+                                                   CharacterSpacing="1" />
+                                            <Label Text="–"
+                                                   TextColor="{x:Static theme:Palette.WordmarkDim}"
+                                                   FontSize="27" />
+                                            <Label Text="RPN"
+                                                   TextColor="{x:Static theme:Palette.Teal}"
+                                                   FontSize="27" FontAttributes="Bold"
+                                                   CharacterSpacing="1" />
+                                        </HorizontalStackLayout>
+                                        <Label Text="Financial Calculator"
+                                               TextColor="{x:Static theme:Palette.WordmarkDim}"
+                                               FontSize="10" FontAttributes="Bold"
+                                               CharacterSpacing="1.4"
+                                               HorizontalTextAlignment="Center" />
+                                    </VerticalStackLayout>
+
+                                    <BoxView Grid.Column="1"
+                                             Color="#12FFFFFF"
+                                             WidthRequest="1"
+                                             VerticalOptions="Fill" />
+
+                                    <!-- LCD bezel -->
+                                    <Border Grid.Column="2"
+                                            Background="{x:Static theme:Palette.LcdBg}"
+                                            StrokeThickness="1"
+                                            Stroke="{x:Static theme:Palette.LcdBezelBorder}"
+                                            MinimumWidthRequest="460"
+                                            Padding="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8" />
+                                        </Border.StrokeShape>
+                                        <GraphicsView x:Name="LcdView"
+                                                      HeightRequest="76"
+                                                      HorizontalOptions="Fill"
+                                                      InputTransparent="True" />
+                                    </Border>
+
+                                    <!-- History drawer toggle -->
+                                    <Border x:Name="HistoryToggle"
+                                            Grid.Column="3"
+                                            Background="{x:Static theme:Palette.Panel}"
+                                            Stroke="{x:Static theme:Palette.PanelBorder}"
+                                            StrokeThickness="1"
+                                            Padding="9,0"
+                                            VerticalOptions="Fill">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8" />
+                                        </Border.StrokeShape>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnHistoryToggleTapped" />
+                                        </Border.GestureRecognizers>
+                                        <Label x:Name="HistoryToggleLabel"
+                                               Text="H&#10;I&#10;S&#10;T"
+                                               TextColor="{x:Static theme:Palette.Muted}"
+                                               FontSize="11" FontAttributes="Bold"
+                                               LineHeight="0.95"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <!-- Key grid: built in code from KeyboardMap.Keys -->
+                            <Grid x:Name="KeypadGrid"
+                                  Grid.Row="1"
+                                  RowSpacing="12"
+                                  ColumnSpacing="12"
+                                  HorizontalOptions="Fill"
+                                  VerticalOptions="Fill"
+                                  Padding="2,4,2,0" />
+
+                            <!-- Footer -->
+                            <Grid Grid.Row="2"
+                                  ColumnDefinitions="*,Auto,*"
+                                  ColumnSpacing="14"
+                                  Margin="6,8,6,0">
+                                <BoxView Grid.Column="0" HeightRequest="1"
+                                         Color="{x:Static theme:Palette.FooterLine}"
+                                         VerticalOptions="Center" />
+                                <Label Grid.Column="1"
+                                       Text="M&#160;&#160;B&#160;E&#160;C&#160;K&#160;I&#160;U&#160;S"
+                                       TextColor="{x:Static theme:Palette.FooterText}"
+                                       FontSize="10" FontAttributes="Bold"
+                                       CharacterSpacing="3.5" />
+                                <BoxView Grid.Column="2" HeightRequest="1"
+                                         Color="{x:Static theme:Palette.FooterLine}"
+                                         VerticalOptions="Center" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Border>
+            </AbsoluteLayout>
+
+            <!-- History panel: hidden by default, docked beside the calculator
+                 when the HIST toggle in the calculator header is tapped. -->
+            <!-- WidthRequest is set in code (platform-dependent). -->
+            <Border x:Name="HistoryPanel"
+                    Grid.Column="1"
+                    Background="{x:Static theme:Palette.Panel}"
+                    Stroke="{x:Static theme:Palette.PanelBorder}"
+                    StrokeThickness="1"
+                    VerticalOptions="Fill"
+                    IsVisible="False">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+
+                <Grid RowDefinitions="Auto,*">
+                    <Grid Grid.Row="0"
+                          Padding="14,10"
+                          BackgroundColor="{x:Static theme:Palette.HeaderBand}"
+                          ColumnDefinitions="*,Auto">
+                        <Label Text="HISTORY"
+                               TextColor="{x:Static theme:Palette.HistoryText}"
+                               FontSize="12" FontAttributes="Bold"
+                               CharacterSpacing="1.2"
+                               VerticalOptions="Center" />
+                        <Button Grid.Column="1"
+                                Text="Clear"
+                                Clicked="OnHistoryClearClicked"
+                                BackgroundColor="Transparent"
+                                TextColor="{x:Static theme:Palette.Muted}"
+                                BorderColor="{x:Static theme:Palette.FooterLine}"
+                                BorderWidth="1"
+                                CornerRadius="6"
+                                FontSize="11"
+                                Padding="10,3"
+                                MinimumHeightRequest="0"
+                                MinimumWidthRequest="0" />
+                    </Grid>
+
+                    <CollectionView x:Name="HistoryList"
+                                    Grid.Row="1"
+                                    SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <Label Text="No operations yet"
+                                   TextColor="{x:Static theme:Palette.FooterText}"
+                                   FontSize="12"
+                                   FontAttributes="Italic"
+                                   HorizontalTextAlignment="Center"
+                                   Margin="10,22" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="hist:HistoryEntry">
+                                <Grid Padding="14,7"
+                                      ColumnDefinitions="*,Auto"
+                                      ColumnSpacing="10">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnHistoryRowTapped" />
+                                    </Grid.GestureRecognizers>
+                                    <Label Text="{Binding Label}"
+                                           TextColor="{x:Static theme:Palette.HistoryText}"
+                                           FontSize="12.5"
+                                           FontFamily="{OnPlatform WinUI=Consolas, Android=monospace}"
+                                           LineBreakMode="TailTruncation"
+                                           VerticalOptions="Center" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding ResultText}"
+                                           TextColor="{x:Static theme:Palette.HistoryResult}"
+                                           FontSize="11.5"
+                                           FontFamily="{OnPlatform WinUI=Consolas, Android=monospace}"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+            </Border>
+    </Grid>
+</ContentPage>

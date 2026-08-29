@@ -1,8 +1,9 @@
-# MB-RPN — an RPN financial calculator in Blazor WebAssembly
+# MB-RPN — an RPN financial calculator in Blazor WebAssembly and .NET MAUI
 
-**MB-RPN** is a .NET Blazor WebAssembly financial calculator with its own dark, glowing
-visual identity and an interactive history panel. It is an independent implementation
-that is functionally compatible with the HP-12C: RPN stack discipline,
+**MB-RPN** is a .NET financial calculator with its own dark, glowing visual identity
+and an interactive history panel, shipped as a Blazor WebAssembly web app and as a
+native .NET MAUI desktop/mobile app sharing the same engine. It is an independent
+implementation that is functionally compatible with the HP-12C: RPN stack discipline,
 10-significant-digit arithmetic, the financial solvers, dates, statistics, and full
 keystroke programming on the same keyboard layout, matching the documented behavior of
 that calculator.
@@ -10,12 +11,20 @@ that calculator.
 ## Running
 
 ```
-dotnet run --project src\MBRPN.Web        # dev server
+dotnet run --project src\MBRPN.Web        # web dev server
 dotnet test                                # engine test suite (handbook examples)
 dotnet publish src\MBRPN.Web -c Release    # static site in bin\Release\net10.0\publish\wwwroot
+
+dotnet build src\MBRPN.Maui -t:Run -f net10.0-windows10.0.19041.0   # native Windows app
+dotnet build src\MBRPN.Maui -f net10.0-android                       # Android build
 ```
 
-Requires the .NET 10 SDK.
+Requires the .NET 10 SDK. The MAUI project additionally needs the MAUI workloads
+(`dotnet workload install maui-windows maui-android`); building the whole solution
+(`dotnet build MBRPN.slnx`) therefore needs them too, while the Web and Engine
+projects build without them. The Android target also needs the Android SDK
+(`dotnet build src\MBRPN.Maui -f net10.0-android -t:InstallAndroidDependencies`
+bootstraps it).
 
 ## Deploying to GitHub Pages
 
@@ -40,6 +49,7 @@ under the `github.io` origin, separate from localhost.
 |---|---|
 | `src\MBRPN.Engine` | UI-independent calculator engine. `CalculatorEngine.Press(KeyId)` in, `DisplayState` out; interaction history with structured replay. |
 | `src\MBRPN.Web` | Blazor WASM front end: dark-tech CSS faceplate, glowing SVG seven-segment display, history panel, keyboard mapping, localStorage continuous memory. |
+| `src\MBRPN.Maui` | Native .NET MAUI front end (Windows + Android): same faceplate drawn with MAUI Graphics, physical-keyboard support on Windows, continuous memory in the app data folder. |
 | `tests\MBRPN.Engine.Tests` | xUnit suite (144 tests) driving the engine key-by-key and asserting on display text, using the handbook's worked examples, plus history recording/replay and rename-verification tests. |
 
 ## What's implemented
@@ -79,6 +89,8 @@ under the `github.io` origin, separate from localhost.
 digits `0–9` `.` `Enter` `+ − × ÷` `%` — as printed. `f` `g` prefixes; `s` STO, `r` RCL,
 `n` `i`, `p` PV, `m` PMT, `v` FV, `c` CHS, `e` EEX, `y` yˣ, `x` x≷y, `d` R↓, `q` 1/x,
 `l` %T, `Space` R/S, `↓` SST, `Backspace`/`Delete` CLx, `Esc` ON.
+
+The same shortcuts work in the web app and in the native Windows (MAUI) app.
 
 ## Fidelity notes
 
