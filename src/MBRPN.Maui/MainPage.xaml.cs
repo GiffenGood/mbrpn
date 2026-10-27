@@ -20,6 +20,7 @@ public partial class MainPage : ContentPage
 
     private readonly CalculatorEngine _engine = new();
     private readonly StateStore _store = new();
+    private readonly KeySound _keySound = new();
     private readonly LcdDrawable _lcd = new();
     private readonly ObservableCollection<HistoryEntry> _history = [];
     private IDispatcherTimer? _saveTimer;
@@ -57,7 +58,11 @@ public partial class MainPage : ContentPage
         _saveTimer.Start();
 
         Loaded += (_, _) => HookKeyboard();
-        Unloaded += (_, _) => UnhookKeyboard();
+        Unloaded += (_, _) =>
+        {
+            UnhookKeyboard();
+            _keySound.Dispose();
+        };
     }
 
     // Implemented in MainPage.Windows.cs; no-ops elsewhere.
@@ -125,6 +130,7 @@ public partial class MainPage : ContentPage
 
     private async Task PressAsync(KeyId key)
     {
+        _keySound.Play();
         bool wasRunning = _engine.IsRunning;
         _engine.Press(key);
         if (!wasRunning && _engine.IsRunning)

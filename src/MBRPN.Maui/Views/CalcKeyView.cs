@@ -17,6 +17,12 @@ public sealed class CalcKeyView : ContentView
     private readonly Border _cap;
     private readonly Brush _normalBrush;
     private readonly Brush _pressedBrush;
+    private readonly Brush _normalStroke;
+    private readonly Brush _hoverStroke;
+    private readonly Shadow _hoverShadow;
+    private bool _hovered;
+    private bool _pressed;
+    private int _pressVersion;
 
     public CalcKeyView(KeyDef def)
     {
@@ -33,6 +39,15 @@ public sealed class CalcKeyView : ContentView
 
         _normalBrush = VerticalGradient(top, bottom);
         _pressedBrush = VerticalGradient(Palette.KeyPressedHi, Palette.KeyPressedLo);
+        _normalStroke = new SolidColorBrush(border);
+        _hoverStroke = new SolidColorBrush(def.Id == KeyId.G ? Palette.Violet : Palette.Teal);
+        _hoverShadow = new Shadow
+        {
+            Brush = _hoverStroke,
+            Offset = new Point(0, 0),
+            Radius = 14,
+            Opacity = 0.6f,
+        };
 
         var fLabel = new Label
         {
@@ -72,12 +87,13 @@ public sealed class CalcKeyView : ContentView
         _cap = new Border
         {
             StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 9 },
-            Stroke = new SolidColorBrush(border),
+            Stroke = _normalStroke,
             StrokeThickness = 1,
             Background = _normalBrush,
             Padding = new Thickness(2, 4),
             Content = new VerticalStackLayout
             {
+                InputTransparent = true,
                 Spacing = 2,
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center,
@@ -88,6 +104,17 @@ public sealed class CalcKeyView : ContentView
         var tap = new TapGestureRecognizer();
         tap.Tapped += (_, _) => OnTapped();
         _cap.GestureRecognizers.Add(tap);
+
+        var pointer = new PointerGestureRecognizer();
+        pointer.PointerEntered += (_, _) => SetHovered(true);
+        pointer.PointerExited += (_, _) => SetHovered(false);
+        GestureRecognizers.Add(pointer);
+        Unloaded += (_, _) =>
+        {
+            _pressVersion++;
+            _pressed = false;
+            SetHovered(false);
+        };
 
         Content = new Grid
         {
@@ -115,11 +142,30 @@ public sealed class CalcKeyView : ContentView
         Pressed?.Invoke(Def.Id);
 
         // Brief pressed pulse, mirroring the web's .key:active style.
-        _cap.Background = _pressedBrush;
-        _cap.TranslationY = 2;
+        int version = ++_pressVersion;
+        _pressed = true;
+        UpdateAppearance();
         await Task.Delay(90);
-        _cap.Background = _normalBrush;
-        _cap.TranslationY = 0;
+        if (version != _pressVersion) return;
+        _pressed = false;
+        UpdateAppearance();
+    }
+
+    private void SetHovered(bool hovered)
+    {
+        _hovered = hovered;
+        UpdateAppearance();
+    }
+
+    private void UpdateAppearance()
+    {
+        _cap.Stroke = _hovered ? _hoverStroke : _normalStroke;
+        if (_hovered)
+            _cap.Shadow = _hoverShadow;
+        else
+            _cap.ClearValue(ShadowProperty);
+        _cap.Background = _pressed ? _pressedBrush : _normalBrush;
+        _cap.TranslationY = _pressed ? 2 : 0;
     }
 
     private static LinearGradientBrush VerticalGradient(Color top, Color bottom) => new(
